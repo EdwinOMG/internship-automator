@@ -1,0 +1,45 @@
+# Frontend (Vue) specific
+node_modules/
+dist/
+.vscode/
+.DS_Store
+*.local
+
+# Backend (Node) specific
+.env
+.env.local
+.npm
+.pnpm
+yarn.lock
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Excel files (but allow template files)
+*.xlsx
+!template.xlsx
+
+# Editor directories and files
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing
+coverage/
+.nyc_output/
+
+# Debug logs
+debug.log
+
+# Local development files
+*.bak
+*.tmp
+
+# System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini

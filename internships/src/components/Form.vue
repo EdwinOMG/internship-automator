@@ -79,38 +79,56 @@
   </template>
   
   <script>
-  export default {
-    name: 'Form',
-    data() {
-      return {
-        form: {
-          company: '',
-          role: '',
-          date: '',
-          status: ''
-        }
-      }
-    },
-    methods: {
-      setTodayDate() {
-        const today = new Date();
-        this.form.date = today.toISOString().split('T')[0];
-      },
-      handleSubmit() {
-        // Emit the form data to parent component
-        this.$emit('form-submitted', { ...this.form });
-        
-        // Reset form
-        this.form = {
-          company: '',
-          role: '',
-          date: '',
-          status: ''
-        };
+export default {
+  data() {
+    return {
+      form: {
+        company: '',
+        role: '',
+        date: '',
+        status: ''
       }
     }
+  },
+  methods: {
+    async handleSubmit() {
+      try {
+        // Format date if empty
+        if (!this.form.date) {
+          this.form.date = new Date().toISOString().split('T')[0];
+        }
+
+        const response = await fetch('http://localhost:3001/api/internships', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(this.form)
+        });
+
+        if (response.ok) {
+          this.$emit('form-submitted', { ...this.form });
+          this.resetForm();
+          alert('Internship added to Excel!');
+        } else {
+          throw new Error('Failed to save');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to save internship');
+      }
+    },
+    resetForm() {
+      this.form = {
+        company: '',
+        role: '',
+        date: '',
+        status: ''
+      };
+    }
   }
-  </script>
+}
+</script>
   
   <style scoped>
   .internship-form {
