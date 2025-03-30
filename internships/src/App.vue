@@ -1,42 +1,36 @@
 <template>
-  <div class="home">
-    <Form @form-submitted="handleFormSubmission" />
-    <Button />
-  </div>
+  <router-view />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import Form from '@/components/Form.vue';
-import Button from '@/components/Buttonauth.vue';
+<script setup lang="ts">
+import { watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
-interface FormData {
-  Company: string;
-  Role: string;
-  Date: string;
-  Status: string;
-}
+const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
 
-export default defineComponent({
-  name: 'HomeView',
-  components: {
-    Form,
-    Button
+// Handle OAuth callback with token
+watch(() => route.query.token, (token) => {
+  if (token && typeof token === 'string') {
+    try {
+      // Store token and clear URL
+      localStorage.setItem('auth_token', token)
+      router.replace({ query: {} })
 
-  },
-  methods: {
-    handleFormSubmission(formData: FormData): void {
-      console.log('Form submitted:', formData);
-      
+      // Parse and initialize user
+      const userData = JSON.parse(atob(token))
+      userStore.login(userData)
+
+      // Redirect to dashboard or intended route
+      const redirectPath = route.query.redirect?.toString() || '/dashboard'
+      router.push(redirectPath)
+    } catch (e) {
+      console.error('Invalid token:', e)
+      userStore.logout()
+      router.push('/login')
     }
   }
-});
+})
 </script>
-
-<style scoped>
-.home {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-</style>

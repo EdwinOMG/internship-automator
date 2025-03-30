@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
+    "composite": true,
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "strict": true,
     "esModuleInterop": true,
@@ -9,14 +10,29 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@stores/*": ["src/stores/*"]  // Add stores alias
     },
-    "types": ["vite/client"]
+    "types": [
+      "vite/client",
+      "vue",
+      "pinia",  // Add Pinia types
+      "node"    // For Node.js types if needed
+    ],
   },
-  "include": [],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",  // Include Vue files
+    "tests/**/*.ts"  // Include test files if needed
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.vitest.json" }
-    // Only include tsconfig.node.json if you have backend code
   ]
 }

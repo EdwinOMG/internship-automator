@@ -91,6 +91,9 @@ export default {
     }
   },
   methods: {
+    setTodayDate() {
+      this.form.date = new Date().toISOString().split('T')[0];
+    },
     async handleSubmit() {
       try {
         // Format date if empty
