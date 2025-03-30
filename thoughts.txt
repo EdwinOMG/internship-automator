@@ -1,0 +1,4 @@
+I have basic excel adding done, with a proper form. 
+
+Ideas for additions: Google auth, allowing a sign in to my email, and giving it permission to scan
+emails, looking for any internship i signed up for, along with rejections, interviews, etc
