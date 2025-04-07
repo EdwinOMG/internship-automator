@@ -101,24 +101,38 @@ export default {
           this.form.date = new Date().toISOString().split('T')[0];
         }
 
+        // Get token from localStorage
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
         const response = await fetch('http://localhost:3001/api/internships', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`  // Add this line
           },
-          body: JSON.stringify(this.form)
+          body: JSON.stringify({
+            Company: this.form.company,  // Match backend expected fields
+            Role: this.form.role,
+            Date: this.form.date,
+            Status: this.form.status
+          })
         });
 
         if (response.ok) {
           this.$emit('form-submitted', { ...this.form });
           this.resetForm();
-          alert('Internship added to Excel!');
+          alert('Internship added successfully!');
         } else {
-          throw new Error('Failed to save');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to save');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Failed to save internship');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to save internship';
+        alert(errorMessage);
       }
     },
     resetForm() {

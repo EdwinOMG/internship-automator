@@ -1,4 +1,4 @@
-from openpyxl import Workbook
+from openpyxl import Workbook # type: ignore
 
 workbook = Workbook()
 sheet = workbook.active 

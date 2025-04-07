@@ -1,14 +1,12 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "../backend/server.js"],
+  "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
-    "jsx": "preserve",
-    "types": ["vite/client", "unplugin-vue-define-options"]
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue"
-  ],
-  "exclude": ["node_modules", "dist"]
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
 }

@@ -72,17 +72,32 @@ passport.deserializeUser((obj, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Helper Functions
+const jwt = require('jsonwebtoken'); // Install: npm install jsonwebtoken
+
 const generateToken = (user) => {
-  return Buffer.from(JSON.stringify({
-    id: user.id,
-    email: user.email,
-    name: user.displayName
-  })).toString('base64');
+  return jwt.sign(
+    { id: user.id, email: user.email, name: user.displayName },
+    process.env.JWT_SECRET || 'your-secret-key', // Add JWT_SECRET to .env
+    { expiresIn: '1h' }
+  );
 };
 
 const isAuthenticated = (req, res, next) => {
+  // Check session-based auth (Passport.js)
   if (req.isAuthenticated()) return next();
+
+  // Fallback: Check JWT token from Authorization header
+  const token = req.headers.authorization?.split(' ')[1];
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded; // Attach user to request
+      return next();
+    } catch (err) {
+      console.error("JWT verification failed:", err);
+    }
+  }
+
   res.status(401).json({ error: 'Not authenticated' });
 };
 
@@ -98,12 +113,11 @@ app.get('/auth/google', (req, res, next) => {
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    const token = generateToken(req.user);
-    const returnTo = req.session.returnTo || '/dashboard';
-    res.redirect(`http://localhost:5173${returnTo}?token=${token}`);
+    const token = generateToken(req.user)
+    // Redirect to homepage with token
+    res.redirect(`http://localhost:5173/?token=${encodeURIComponent(token)}`)
   }
-);
-
+)
 app.get('/auth/logout', (req, res) => {
   req.logout();
   res.redirect('http://localhost:5173');
@@ -116,17 +130,24 @@ app.get('/api/user', isAuthenticated, (req, res) => {
 
 app.post('/api/internships', isAuthenticated, (req, res) => {
   try {
+    console.log("Request body:", req.body); // Log incoming data
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const data = XLSX.utils.sheet_to_json(worksheet);
-    data.push(req.body);
     
+    // Validate required fields
+    if (!req.body.Company || !req.body.Role) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    data.push(req.body);
     const newWorksheet = XLSX.utils.json_to_sheet(data);
     workbook.Sheets[workbook.SheetNames[0]] = newWorksheet;
-    XLSX.writeFile(workbook, EXCEL_FILE);
     
+    XLSX.writeFile(workbook, EXCEL_FILE);
+    console.log("Excel file updated successfully"); // Confirm save
     res.status(201).json({ success: true });
   } catch (error) {
-    console.error(error);
+    console.error("Full error:", error);
     res.status(500).json({ error: 'Failed to update Excel file' });
   }
 });
